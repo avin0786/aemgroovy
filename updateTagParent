@@ -16,8 +16,9 @@ result.nodes.each { node ->
 
             def valueList = []
 
-            prop.getValues().findAll { it.getString() == 'waters:category/applicationslibrary' }.each { val ->
-                val.getString() == 'waters:category/applicationslibrary' ? valueList.push('waters:category/library') : valueList.push(val.getString())
+            prop.getValues().findAll { it.getString().contains('waters:variation') }.each { val ->
+                val.getString().contains('waters:variation') ? valueList.push('waters:variation2') : valueList.push(val.getString())
+                println 'Path--'+valueList ;
             }
 
             if(valueList){
@@ -25,7 +26,6 @@ result.nodes.each { node ->
             }
 
         }
-
-        session.save()
+        session.save();
     }
 }
