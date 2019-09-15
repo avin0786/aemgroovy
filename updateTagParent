@@ -16,12 +16,14 @@ result.nodes.each { node ->
 
             def valueList = []
 
-            prop.getValues().findAll { it.getString().contains('waters:variation') }.each { val ->
-                val.getString().contains('waters:variation') ? valueList.push('waters:variation2') : valueList.push(val.getString())
-                println 'Path--'+valueList ;
+             prop.getValues().findAll { it.getString().contains('experience-fragments:variation') }.each { val ->
+            def nodeList = val.getString().split("/");
+                val.getString().contains('experience-fragments:variation') ? valueList.push('experience-fragments:variation2/'+nodeList[nodeList.length-1])  : valueList.push(val.getString())
+               
             }
 
             if(valueList){
+                 println 'Path--'+valueList;
                 nonEmptyNode.setProperty(prop.getName(), valueList as String[])
             }
 
