@@ -1,1 +1,49 @@
 
+final def page = getPage('/content/waters/language-masters/en/library/application-notes')
+final def query = buildQuery(page, 'waters/components/structure/page');
+final def result = query.execute()
+def buildQuery(page, term) {
+    def queryManager = session.workspace.queryManager;
+    def statement = 'select * from nt:base where jcr:path like \''+page.path+'/%\' and sling:resourceType = \'' + term + '\'';
+    queryManager.createQuery(statement, 'sql');
+}
+result.nodes.each { node ->
+    println node.getPath()
+   
+    if(node.hasProperty('separationMode')){
+        updateProperty(node,'separationMode')
+    }
+   
+    if(node.hasProperty('compoundMatrix')){
+        updateProperty(node,'compoundMatrix')
+    }
+   
+    if(node.hasProperty('technique')){
+        updateProperty(node,'technique')
+    }
+   
+    if(node.hasProperty('instrumentType')){
+        updateProperty(node,'instrumentType')
+    }
+   
+    if(node.hasProperty('software')){
+        updateProperty(node,'software')
+    }
+   
+     session.save()
+}
+def updateProperty(node,propertyName) {
+   
+    def propMap = [separationMode:'compoundAnalyte', compoundMatrix:'matrix', technique:'separationMode', instrumentType:'instrumentTechnique', software:'products']
+   
+    def valueList = []
+       
+    node.getProperty(propertyName).getValues().each { val ->
+        def nodeList = val.getString().split("/");
+        valueList.push('waters:'+propMap[propertyName].toLowerCase()+'/'+nodeList[1])
+    }
+       
+    node.set(propMap[propertyName], valueList as String[]);
+       
+    node.set(propertyName, null);
+}
