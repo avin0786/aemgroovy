@@ -1,0 +1,57 @@
+final def page = getPage('/content/bne/us/en/secure/home/member-services')
+final def query = buildQuery(page, 'bne/components/page/structuralpage');
+final def result = query.execute()
+def buildQuery(page, term) {
+    def queryManager = session.workspace.queryManager;
+    def statement = 'select * from nt:base where jcr:path like \''+page.path+'/%\' and sling:resourceType = \'' + term + '\'';
+    queryManager.createQuery(statement, 'sql');
+}
+result.nodes.each { node ->
+    println node.getPath()
+    
+   
+    if(node.hasProperty('separationMode')){
+        updateProperty(node,'separationMode','newProperty')
+    }
+   
+    if(node.hasProperty('compoundMatrix')){
+        updateProperty(node,'compoundMatrix','newProperty')
+    }
+   
+    if(node.hasProperty('technique')){
+        updateProperty(node,'technique','newProperty')
+    }
+   
+    if(node.hasProperty('instrumentType')){
+        updateProperty(node,'instrumentType','newProperty')
+    }
+   
+    if(node.hasProperty('software')){
+        updateProperty(node,'software','newProperty')
+    }
+   
+  session.save()
+}
+def updateProperty(node,propertyName,newProperty) {
+    
+    node.findAll { it.hasProperties() }.each { nonEmptyNode ->
+
+        nonEmptyNode.getProperties().findAll {it.isMultiple() && it.getType() == 1 }.each { prop ->
+
+    def valueList = []
+     prop.getValues().findAll { it.getString().contains('waters:'+propertyName.toLowerCase()) }.each { val ->
+     println 'Value Property initial--'+val.getString();
+            def nodeList = val.getString().split("/");
+            
+                val.getString().contains('waters:'+propertyName.toLowerCase()) ? valueList.push('waters:'+newProperty.toLowerCase()+'/'+nodeList[nodeList.length-1])  : valueList.push(val.getString())
+               
+            }
+              if(valueList.size() >0 ){
+            println 'Values--'+valueList;
+    node.set(newProperty, valueList as String[]);
+              }
+       
+    node.set(propertyName, null);
+        }
+    }
+}
