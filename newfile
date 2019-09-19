@@ -1,4 +1,67 @@
-final def page = getPage('/content/bne/us/en/secure/home/member-services')
+
+final def page = getPage('/content/waters/language-masters/en/library/application-notes/2006')
+final def query = buildQuery(page)
+final def result = query.execute()
+
+def buildQuery(page){
+    def queryManager = session.workspace.queryManager
+    def queryString = "SELECT * FROM [nt:base] WHERE ISDESCENDANTNODE([$page.path])"
+    queryManager.createQuery(queryString, "JCR-SQL2")
+}
+
+result.nodes.each { node ->
+    println node.getPath()
+   
+   
+    if(node.hasProperty('separationMode')){
+        updateProperty(node,'separationMode','newProperty')
+    }
+   
+    if(node.hasProperty('compoundMatrix')){
+        updateProperty(node,'compoundMatrix','newProperty')
+    }
+   
+    if(node.hasProperty('technique')){
+        updateProperty(node,'technique','newProperty')
+    }
+   
+    if(node.hasProperty('instrumentType')){
+        updateProperty(node,'instrumentType','newProperty')
+    }
+   
+    if(node.hasProperty('software')){
+        updateProperty(node,'software','products')
+    }
+   
+ 
+}
+def updateProperty(node,propertyName,newProperty) {
+   
+    node.findAll { it.hasProperties() }.each { nonEmptyNode ->
+
+        nonEmptyNode.getProperties().findAll {it.isMultiple() && it.getType() == 1 }.each { prop ->
+
+            def valueList = []
+            println 'prop' + prop.getValues();
+if(prop.getName().equalsIgnoreCase(propertyName)){
+            prop.getValues().findAll { it.getString().contains('waters:' + propertyName) }.each { val ->
+            println 'prop' + val.getString();
+                def nodeList = val.getString().split("/");
+                val.getString().contains('waters:' + propertyName) ? valueList.push('waters:' + newProperty + '/' +nodeList[nodeList.length-1])  : valueList.push(val.getString())
+
+            }
+
+            if(valueList.size > 0){
+
+                nonEmptyNode.setProperty(newProperty, valueList as String[])
+            }
+            node.set(propertyName,null);
+           
+}  
+session.save();
+        }
+    }
+} def page = getPage('/content/bne/us/en/secure/home/member-services')
 final def query = buildQuery(page, 'bne/components/page/structuralpage');
 final def result = query.execute()
 def buildQuery(page, term) {
