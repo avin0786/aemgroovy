@@ -6,7 +6,7 @@ def buildQuery(page, term) {
     def statement = 'select * from nt:base where jcr:path like \''+page.path+'/%\' and sling:resourceType = \'' + term + '\'';
     queryManager.createQuery(statement, 'sql');
 }
-count = 0;
+def count = 0;
 result.nodes.each { node ->
     println node.getPath()
    
