@@ -1,0 +1,28 @@
+/*This method is used to Query the JCR and find results as per the Query.*/
+ def buildQuery(page, term) {
+ def queryManager = session.workspace.queryManager;
+ def statement = 'select * from nt:base where jcr:path like \''+page.path+'/%\' and sling:resourceType = \'' + term + '\'';
+ queryManager.createQuery(statement, 'sql');
+ }
+ 
+ /*Defined Content Hierarchy */
+ final def page = getPage('/content/geometrixx/en')
+ /*Component ResourceType which is searched in the content hierarchy */
+ final def query = buildQuery(page, 'foundation/components/flash');
+ final def result = query.execute()
+ 
+ count = 0;
+ result.nodes.each { node ->
+println 'Path--'+node.path ;
+def tagList = []
+ tagList.add("");
+ if(null != node.get('permissions')){
+println 'Path--'+node.get('permissions') ; 
+node.set('permission',null);
+session.save();
+}
+
+ 
+ }
+ println 'Number Of Component Found :' + result.nodes.size();
+ println 'Number of Component Modified:' + count;
