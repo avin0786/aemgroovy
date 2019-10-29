@@ -1,0 +1,30 @@
+import com.day.cq.replication.Replicator;
+import com.day.cq.replication.ReplicationActionType
+import javax.jcr.Session;
+
+def movePath = "new page loation parent path"
+def replicator = getService(Replicator.class)
+
+getPage("old page path").recurse { page ->
+    def content = page.node
+
+    if (content && content.get("toolType")) {
+        content.get("toolType").each{ val ->
+        def rs = replicator.getReplicationStatus(session, page.path);
+GregorianCalendar date = rs.getLastPublished();
+        //def rp = replicator.replicate(session, ReplicationActionType.ACTIVATE, path);
+        def nodeList = val.split("/");
+                println nodeList[nodeList.length-1]
+                def newPage = pageManager.move(page,movePath+"/"+nodeList[nodeList.length-1]+"/"+page.name,nodeList[nodeList.length-1],false,true, null)
+                 if(null != date){
+                  println("Previous Page:     " + page.path);
+                  println("Published on:      " + date.getTime());
+                  println("Last Published By: " + rs.getLastPublishedBy());
+                 } else {
+                 println("Path is activated: " + "false");
+                 }
+                 println(" New Page:          " + newPage.path);
+
+            }
+    }
+}
